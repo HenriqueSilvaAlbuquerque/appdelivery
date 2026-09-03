@@ -79,19 +79,19 @@ public class Delivery {
 
     public void place(){
         verifyCanBePlaced();
-        this.setDeliveryStatus(DeliveryStatus.WAITING_FOR_COURIER);
+        this.changeStatusTo(DeliveryStatus.WAITING_FOR_COURIER);
         this.setPlacedAt(OffsetDateTime.now());
 
     }
 
     public void pickUP(UUID courierId){
         this.setCourierId(courierId);
-        this.setDeliveryStatus(DeliveryStatus.IN_TRANSIT);
+        this.changeStatusTo(DeliveryStatus.IN_TRANSIT);
         this.setAssignedAt(OffsetDateTime.now());
     }
 
     public void markAsDeliviered(){
-        this.setDeliveryStatus(DeliveryStatus.DELIVERED);
+        this.changeStatusTo(DeliveryStatus.DELIVERED);
         this.setFulfilledAt(OffsetDateTime.now());
     }
 
@@ -118,6 +118,13 @@ public class Delivery {
 
     private boolean isFilled(){
         return this.getSender()!=null && this.getRecipient()!=null &&  this.getTotalCost()!=null;
+    }
+
+    private void changeStatusTo(DeliveryStatus newStatus){
+        if(newStatus!=null && this.getDeliveryStatus().canNotChangeTo(newStatus)){
+            throw new DomainException("Invalid status change from " + this.getDeliveryStatus()+"to" + newStatus);
+        }
+        this.setDeliveryStatus(newStatus);
     }
 
     private void verifyCanBeEdited(){
