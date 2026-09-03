@@ -1,13 +1,12 @@
 package com.dev.deliveryapp.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 @EqualsAndHashCode
 @AllArgsConstructor
 @Builder
-public class ContatctPoint {
+@Getter
+public class ContactPoint {
     private String nome;
     private String phone;
     private String zipCode;
