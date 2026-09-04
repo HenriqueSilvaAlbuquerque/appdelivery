@@ -1,6 +1,7 @@
 package com.dev.deliveryapp.domain.model;
 
 import com.dev.deliveryapp.domain.model.excepetion.DomainException;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -11,11 +12,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+@Entity
 @NoArgsConstructor(access= AccessLevel.PACKAGE)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Setter(AccessLevel.PRIVATE)
 @Getter
 public class Delivery {
+    @Id
     @EqualsAndHashCode.Include
     private UUID id;
     private UUID courierId;
@@ -23,13 +26,32 @@ public class Delivery {
     private OffsetDateTime assignedAt;
     private OffsetDateTime expectedDeliveryAt;
     private OffsetDateTime fulfilledAt;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name="zipCode",column = @Column(name="sender_zip_code")),
+            @AttributeOverride(name="street",column = @Column(name="sender_street")),
+            @AttributeOverride(name="number",column= @Column(name="sender_number")),
+            @AttributeOverride(name="complement",column=@Column(name="sender_complement")),
+            @AttributeOverride(name="name",column = @Column(name="sender_name")),
+            @AttributeOverride(name="phone",column= @Column(name="sender_phone"))
+    })
     private ContactPoint sender;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name="zipCode",column = @Column(name="recipient_zip_code")),
+            @AttributeOverride(name="street",column = @Column(name="recipient_street")),
+            @AttributeOverride(name="number",column= @Column(name="recipient_number")),
+            @AttributeOverride(name="complement",column=@Column(name="recipient_complement")),
+            @AttributeOverride(name="name",column = @Column(name="recipient_name")),
+            @AttributeOverride(name="phone",column= @Column(name="recipient_phone"))
+    })
     private ContactPoint recipient;
     private BigDecimal distanceFee;
     private BigDecimal courierPayout;
     private BigDecimal totalCost;
     private Integer totalItems;
     private DeliveryStatus deliveryStatus;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "delivery")
     private List<Item> items =new ArrayList<>();
 
 
@@ -50,7 +72,7 @@ public class Delivery {
 
 
     public UUID addItem(String name, int quantity){
-        Item item = Item.brandNew(name, quantity);
+        Item item = Item.brandNew(name, quantity, this);
         this.items.add(item);
         calculateTotalItens();
         return item.getId();
