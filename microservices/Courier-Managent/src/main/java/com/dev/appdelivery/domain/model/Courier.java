@@ -1,5 +1,9 @@
 package com.dev.appdelivery.domain.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 import org.hibernate.mapping.Collection;
 
@@ -9,12 +13,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
+@Entity
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Setter(AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Courier {
+
     @EqualsAndHashCode.Include
+    @Id
     private UUID id;
 
     @Setter
@@ -26,9 +34,11 @@ public class Courier {
     private Integer fulfilledDeliveriesQuantity;
     private Integer pendingDeliveriesQuantity;
     private OffsetDateTime lastDeliveryFulfilledAt;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "courier")
     private List<AssignedDelivery> pendingDeliveries = new ArrayList<>();
 
-    public List<AssignedDelivery> getPendingDeliveries(){
+    public List<AssignedDelivery> getPendingDeliveries() {
         return Collections.unmodifiableList(this.pendingDeliveries);
     }
 
@@ -44,7 +54,7 @@ public class Courier {
     }
 
     public void assign(UUID deliveryId){
-        this.pendingDeliveries.add(AssignedDelivery.peding(deliveryId));
+        this.pendingDeliveries.add(AssignedDelivery.pending(deliveryId));
         this.pendingDeliveriesQuantity++;
     }
 

@@ -1,4 +1,4 @@
-package com.dev.appdelivery.Courier.Managent;
+package com.dev.appdelivery;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

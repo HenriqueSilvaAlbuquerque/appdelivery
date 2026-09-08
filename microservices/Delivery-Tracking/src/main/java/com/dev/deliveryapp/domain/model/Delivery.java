@@ -57,7 +57,7 @@ public class Delivery {
 
     public static Delivery draft(){
         Delivery delivery = new Delivery();
-        delivery.setCourierId(UUID.randomUUID());
+        delivery.setId(UUID.randomUUID());
         delivery.setDeliveryStatus(DeliveryStatus.DRAFT);
         delivery.setTotalItems(0);
         delivery.setTotalCost(BigDecimal.ZERO);

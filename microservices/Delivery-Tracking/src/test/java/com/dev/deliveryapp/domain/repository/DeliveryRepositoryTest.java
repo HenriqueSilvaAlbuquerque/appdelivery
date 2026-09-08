@@ -1,34 +1,35 @@
-package com.dev.deliveryapp.domain.model;
+package com.dev.deliveryapp.domain.repository;
 
-import com.dev.deliveryapp.domain.model.excepetion.DomainException;
+import com.dev.deliveryapp.domain.model.ContactPoint;
+import com.dev.deliveryapp.domain.model.Delivery;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DeliveryTest { 
-    
+@DataJpaTest
+@AutoConfigureTestDatabase(replace=AutoConfigureTestDatabase.Replace.NONE)
+class DeliveryRepositoryTest {
+
+    @Autowired
+    private DeliveryRepository deliveryRepository;
     @Test
-    public void shouldChangeToPlaced(){
+    public void shouldPersist(){
         Delivery delivery = Delivery.draft();
         delivery.editPreparationDetails(createValidPreparationDetails());
-        delivery.place();
+        delivery.addItem("computador",3);
+        delivery.addItem("mouse",2);
+        deliveryRepository.saveAndFlush(delivery);
 
-        assertEquals(DeliveryStatus.WAITING_FOR_COURIER,delivery.getDeliveryStatus());
-        assertNotNull(delivery.getPlacedAt());
+        Delivery persistedDelivery = deliveryRepository.findById(delivery.getId()).orElseThrow();
+        assertEquals(2,persistedDelivery.getItems().size());
 
-    }
 
-    @Test
-    public void shoulNotToPlaced(){
-        Delivery delivery = Delivery.draft();
-
-        assertThrows(DomainException.class,()->{ delivery.place();});
-
-        assertEquals(DeliveryStatus.DRAFT,delivery.getDeliveryStatus());
-        assertNull(delivery.getPlacedAt());
 
     }
 
