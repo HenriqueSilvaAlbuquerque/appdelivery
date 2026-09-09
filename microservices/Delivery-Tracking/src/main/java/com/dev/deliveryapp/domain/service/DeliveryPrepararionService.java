@@ -7,11 +7,13 @@ import com.dev.deliveryapp.domain.model.ContactPoint;
 import com.dev.deliveryapp.domain.model.Delivery;
 import com.dev.deliveryapp.domain.model.excepetion.DomainException;
 import com.dev.deliveryapp.domain.repository.DeliveryRepository;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -19,6 +21,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DeliveryPrepararionService {
     private final DeliveryRepository deliveryRepository;
+    private final DeliveryTimeEstimationService deliveryTimeEstimationService;
+    private final CourierPayoutCalculationService courierPayoutCalculationService;
 
     @Transactional
     public Delivery draft(DeliveryInput input){
@@ -58,15 +62,16 @@ public class DeliveryPrepararionService {
                 .street(recipientInput.getStreet())
                 .build();
 
-        Duration expectedDeliveryTime = Duration.ofHours(3);
-        BigDecimal payout = new BigDecimal("10");
-        BigDecimal distanceFee = new BigDecimal("10");
+        DeliveryEstimate estimate = deliveryTimeEstimationService.estimate(sender, recipient);
+        BigDecimal calculatePayout = courierPayoutCalculationService.calculatePayout(estimate.getDistanceInKm());
+        BigDecimal distanceFee=calculateFee(estimate.getDistanceInKm());
+
 
         Delivery.PreparationDetails preparationDetails = Delivery.PreparationDetails.builder()
                 .recipient(recipient)
                 .sender(sender)
-                .expectedDeliveryTime(expectedDeliveryTime)
-                .CourierPayout(payout)
+                .expectedDeliveryTime(estimate.getEstimateTime())
+                .CourierPayout(calculatePayout)
                 .distanceFee(distanceFee)
                 .build();
 
@@ -75,5 +80,12 @@ public class DeliveryPrepararionService {
         for (ItemInput item: input.getItems()){
             delivery.addItem(item.getName(), item.getQuantity());
         }
+    }
+
+
+    private BigDecimal calculateFee(Double distanceInKm) {
+        return new BigDecimal("3")
+                .multiply(BigDecimal.valueOf(distanceInKm))
+                .setScale(2, RoundingMode.HALF_EVEN);
     }
 }
