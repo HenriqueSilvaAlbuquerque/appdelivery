@@ -1,14 +1,15 @@
 package com.dev.deliveryapp.domain.model;
+import jakarta.persistence.Embeddable;
+import lombok.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-
+@Embeddable
 @EqualsAndHashCode
 @AllArgsConstructor
 @Builder
-public class ContatctPoint {
-    private String nome;
+@Getter
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
+public class ContactPoint {
+    private String name;
     private String phone;
     private String zipCode;
     private String street;
