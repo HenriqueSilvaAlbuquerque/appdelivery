@@ -1,3 +1,4 @@
+
 spring:
   application:
     name: delivery-Tracking
@@ -5,6 +6,16 @@ spring:
     url: jdbc:postgresql://localhost:5432/delivery_db
     username: postgres
     password: postgres
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      properties:
+        spring.json.type.mapping:
+          delivery-placed-event:com.dev.deliveryapp.domain.event.DeliveryPlacedEvent,
+          delivery-picked-up-event:com.dev.deliveryapp.domain.event.DeliveryPickUpEvent,
+          delivery-full-filledd-event:com.dev.deliveryapp.domain.event.DeliveryFullFilleddEvent
   jpa:
     hibernate:
       ddl-auto: update
